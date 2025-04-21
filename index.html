@@ -2,13 +2,55 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Meu Primeiro Site</title>
+    <title>Meu Feed Central</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+
+      .feed {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .card {
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      }
+
+      .card a {
+        text-decoration: none;
+        color: #007bff;
+      }
+    </style>
   </head>
   <body>
-    <h1>Olá, mundo!</h1>
-    <p>Esse é meu primeiro site no GitHub Pages! 🚀</p>
-  <a href="sobre.html">
-  <button>Ir para a página Sobre</button>
-  </a>
+    <h1>Central de Links</h1>
+    <p>Aqui você encontra todos os conteúdos mais recentes!</p>
+
+    <div class="feed">
+      <div class="card">
+        <h3>Post do Instagram</h3>
+        <p>Confira esse conteúdo no Insta:</p>
+        <a href="https://www.instagram.com/p/SEULINKAQUI" target="_blank">Ver post</a>
+      </div>
+
+      <div class="card">
+        <h3>Vídeo no YouTube</h3>
+        <p>Um vídeo novo no canal!</p>
+        <a href="https://www.youtube.com/watch?v=SEULINKAQUI" target="_blank">Assistir agora</a>
+      </div>
+
+      <div class="card">
+        <h3>Blog ou notícia</h3>
+        <p>Conteúdo interessante que encontrei hoje:</p>
+        <a href="https://algumlink.com" target="_blank">Ler mais</a>
+      </div>
+    </div>
   </body>
 </html>
+
