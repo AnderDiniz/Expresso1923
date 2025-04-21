@@ -2,55 +2,82 @@
 <html lang="pt-br">
   <head>
     <meta charset="UTF-8" />
-    <title>Meu Feed Central</title>
+    <title>Central de Links - Feed</title>
     <style>
       body {
         font-family: sans-serif;
-        margin: 20px;
+        margin: 30px;
+        background-color: #f9f9f9;
+      }
+
+      h1 {
+        color: #333;
       }
 
       .feed {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 25px;
       }
 
       .card {
-        border: 1px solid #ccc;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
-      .card a {
+      .card img {
+        width: 100%;
+        border-radius: 8px;
+        transition: transform 0.2s ease;
+      }
+
+      .card img:hover {
+        transform: scale(1.02);
+      }
+
+      .card h3 {
+        margin-bottom: 10px;
+      }
+
+      .card p {
+        margin-top: 8px;
+        color: #555;
+      }
+
+      a {
         text-decoration: none;
         color: #007bff;
+      }
+
+      a:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
-    <h1>Central de Links</h1>
-    <p>Aqui você encontra todos os conteúdos mais recentes!</p>
+    <h1>📌 Central de Conteúdos</h1>
+    <p>Veja abaixo os destaques mais recentes:</p>
 
     <div class="feed">
+      <!-- Bloco do vídeo do Vasco -->
       <div class="card">
-        <h3>Post do Instagram</h3>
-        <p>Confira esse conteúdo no Insta:</p>
-        <a href="https://www.instagram.com/p/SEULINKAQUI" target="_blank">Ver post</a>
+        <h3>🎥 Vasco Todo Dia - Expresso KTO</h3>
+        <a href="https://www.youtube.com/watch?v=2L7v9nsVuck" target="_blank">
+          <img src="https://img.youtube.com/vi/2L7v9nsVuck/hqdefault.jpg" alt="Vasco Todo Dia" />
+        </a>
+        <p>Clique na imagem para assistir o vídeo no YouTube!</p>
       </div>
 
+      <!-- Exemplo extra: outro vídeo (pode apagar ou substituir depois) -->
       <div class="card">
-        <h3>Vídeo no YouTube</h3>
-        <p>Um vídeo novo no canal!</p>
-        <a href="https://www.youtube.com/watch?v=SEULINKAQUI" target="_blank">Assistir agora</a>
-      </div>
-
-      <div class="card">
-        <h3>Blog ou notícia</h3>
-        <p>Conteúdo interessante que encontrei hoje:</p>
-        <a href="https://algumlink.com" target="_blank">Ler mais</a>
+        <h3>🎬 Exemplo de Outro Vídeo</h3>
+        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
+          <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Outro vídeo" />
+        </a>
+        <p>Mais um exemplo de vídeo linkado com thumbnail.</p>
       </div>
     </div>
   </body>
 </html>
-
