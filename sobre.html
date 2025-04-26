@@ -3,322 +3,311 @@
 <head>
   <meta charset="UTF-8" />
   <title>IboVasco</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-  
   <style>
     body {
       font-family: sans-serif;
-      margin: 40px;
       background: #111;
       color: #fff;
+      margin: 40px;
     }
-    #filters {
-      margin-bottom: 30px;
+    .layout {
+      display: flex;
+      gap: 30px;
+      max-width: 100%;
+      padding: 20px 40px;
+      box-sizing: border-box;
+    }
+    #sidebar {
+      width: 250px;
+      background: #1b1b1b;
+      padding: 20px;
+      border-radius: 10px;
     }
     canvas {
+      width: 100%;
+      height: 700px;
       background: #222;
       padding: 20px;
       border-radius: 10px;
     }
-
-    select[multiple] {
+    #mainContent {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    button {
       padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: #fefefe;
-      color: #000;
-      font-size: 14px;
-      width: 300px;
-      height: 150px;
+      margin-bottom: 10px;
+      width: 100%;
+      background: #36A2EB;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2389c9;
     }
 
-    select[multiple] option {
-      padding: 5px;
-      color: #000;
-      background-color: #fff;
-    }
+    
 
-    .choices__inner,
-    .choices__list--multiple .choices__item {
-      color: #000 !important;
-      background-color: #fff !important;
-    }
+    .multi-filtro-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.multi-filtro-wrapper.show {
+  max-height: 500px;
+}
+.multi-filtro {
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  user-select: none;
+}
 
-    .choices__item--selectable.is-highlighted {
-      background-color: #ddd !important;
-      color: #000 !important;
-    }
+/* cada jogador (não selecionado) */
+.multi-filtro .option {
+  height: 38px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background-color: #3a3a3a;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
 
-    .choices__list--dropdown .choices__item--choice {
-      color: #000 !important;
-      background-color: #fff !important;
-    }
+/* selecionado com faixa */
+.multi-filtro .option.selected {
+  background: #d9d9d9;
+  color: black;
+  font-weight: bold;
+}
 
-    .choices__list--dropdown .choices__item--choice.is-highlighted {
-      background-color: #ddd !important;
-      color: #000 !important;
-    }
+/* faixa diagonal ajustada */
+.multi-filtro .option.selected::before {
+  content: '';
+  position: absolute;
+  width: 120%;
+  height: 100%;
+  top: 0;
+  left: -10%;
+  transform: rotate(-45deg);
+  background: white;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  z-index: 1;
+  pointer-events: none;
+}
 
-    .container {
-      max-width: 1300px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+/* cruz de malta */
+.multi-filtro .option.selected::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d3/Cruz_de_Malta.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+  pointer-events: none;
+}
+
+
+
+
+/* nome do jogador */
+.multi-filtro .option.selected > *,
+.multi-filtro .option > * {
+  position: relative;
+  z-index: 3;
+}
+
+.jogador-nome {
+  flex-grow: 1;
+  font-size: 14px;
+  z-index: 3;
+  line-height: 1.4;
+}
+
+
+
+
+
+
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>IboVasco 📈</h1>
+  <h1 style="text-align:center">IboVasco 📈</h1>
+  <div class="layout">
+    <aside id="sidebar">
+      <h3>Filtros</h3>
+      <button id="toggleFiltro">Selecionar jogadores</button>
+      <button id="clearFiltro">Limpar seleção</button>
+      <div id="multiFiltroWrapper" class="multi-filtro-wrapper">
+        <div id="multiFiltro" class="multi-filtro"></div>
+      </div>
+    </aside>
+    <main id="mainContent">
+      <canvas id="iboVascoChart"></canvas>
+    </main>
+  </div>
 
-    <div id="filters">
-      <select id="playerFilter" multiple></select>
-      <select id="gameFilter" multiple></select>
-    </div>
+<script>
+  const jogadores = ['Vegetti', 'Payet', 'Lucas Piton', 'Zé Gabriel', 'Leo Jardim','Nuno', 'Coutinho', 'Rayan', 'Paulinho', 'Jair'];
+  const jogos = ['Cariocão', 'Santos (C)', 'Melgar (F)', 'Corinthians (F)', 'Puerto Cabello (C)', 'Sport (C)', 'Ceará (F)', 'Flamengo (N)'];
 
-    <canvas id="iboVascoChart" width="1000" height="500"></canvas>
+  const notasIniciais = {
+    'Vegetti': 8, 'Payet': 7, 'Lucas Piton': 6, 'Zé Gabriel': 5, 'Leo Jardim': 9,
+    'Nuno': 8, 'Coutinho': 7, 'Rayan': 6, 'Paulinho': 5, 'Jair': 9
+  };
 
-    <script>
-      const playerFilter = new Choices('#playerFilter', {
-        removeItemButton: true,
-        placeholder: true,
-        placeholderValue: 'Selecione jogadores'
-      });
+  const ajustes = {
+    'Vegetti': [1, 2, 5, 2, 5, 1, 1],
+    'Payet': [2, 1, -1, 1, -1, 2, -2],
+    'Lucas Piton': [-1, 1, 1, 2, -2, 1, 1],
+    'Zé Gabriel': [-1, 1, 1, 2, -2, 1, 1],
+    'Leo Jardim': [-1, 1, 1, 2, -2, 1, 1],
+    'Nuno': [1, 2, 5, 2, 5, 1, 1],
+    'Coutinho': [-1, 1, 1, 2, -2, 1, 1],
+    'Rayan': [-1, 1, 1, 2, -2, 1, 1],
+    'Paulinho': [2, -2, 1, -1, 1, -2, 2],
+    'Jair': [1, 1, -1, 2, -2, 2, -1]
+  };
 
-      const gameFilter = new Choices('#gameFilter', {
-        removeItemButton: true,
-        placeholder: true,
-        placeholderValue: 'Selecione jogos'
-      });
-
-      const jogadores = ['Vegetti', 'Payet', 'Lucas Piton', 'Zé Gabriel', 'Leo Jardim'];
-      const jogos = ['Cariocão', 'Santos (C)', 'Melgar (F)', 'Corinthians (F)', 'Puerto Cabello (C)', 'Sport (C)', 'Ceará (F)', 'Flamengo (N)'];
-
-      jogadores.forEach(j => playerFilter.setChoices([{ value: j, label: j }], 'value', 'label', false));
-      jogos.forEach(j => gameFilter.setChoices([{ value: j, label: j }], 'value', 'label', false));
-
-      const notasIniciais = {
-        'Vegetti': 8,
-        'Payet': 7,
-        'Lucas Piton': 6,
-        'Zé Gabriel': 5,
-        'Leo Jardim': 9
-      };
-
-      const ajustes = {
-        'Vegetti': [1, 2, 5, 2, 5, 1, 1],
-        'Payet': [2, 1, -1, 1, -1, 2, -2],
-        'Lucas Piton': [-1, 1, 1, 2, -2, 1, 1],
-        'Zé Gabriel': [2, -2, 1, -1, 1, -2, 2],
-        'Leo Jardim': [1, 1, -1, 2, -2, 2, -1]
-      };
-
-      const dados = {};
-      jogadores.forEach(jogador => {
-        let notas = [notasIniciais[jogador]];
-        ajustes[jogador].forEach(ajuste => {
-          const novaNota = notas[notas.length - 1] + ajuste;
-          notas.push(Math.max(0, Math.min(20, novaNota)));
-        });
-        dados[jogador] = notas;
-      });
-
-      const cores = {
-        'Vegetti': '#FF6384',
-        'Payet': '#36A2EB',
-        'Lucas Piton': '#FFCE56',
-        'Zé Gabriel': '#4BC0C0',
-        'Leo Jardim': '#9966FF'
-      };
-
-  
-
-      const multipleTooltipsPlugin = {
-  id: 'customTooltips',
-  afterDraw(chart) {
-    const { ctx } = chart;
-    const tooltipsPorNota = {};
-
-    chart.data.datasets.forEach((dataset, datasetIndex) => {
-      const meta = chart.getDatasetMeta(datasetIndex);
-      const lastIndex = dataset.data.length - 1;
-      const point = meta.data[lastIndex];
-      if (!point) return;
-
-      const notaFinal = dataset.data[lastIndex];
-      if (!tooltipsPorNota[notaFinal]) tooltipsPorNota[notaFinal] = [];
-      tooltipsPorNota[notaFinal].push({ point, label: `${dataset.label}: Nota ${notaFinal}` });
+  const dados = {};
+  jogadores.forEach(jogador => {
+    let notas = [notasIniciais[jogador]];
+    ajustes[jogador].forEach(ajuste => {
+      const novaNota = notas[notas.length - 1] + ajuste;
+      notas.push(Math.max(0, Math.min(20, novaNota)));
     });
-
-    Object.values(tooltipsPorNota).forEach(group => {
-  group.forEach((item, i) => {
-    // Ajusta o offset para espalhar verticalmente
-    const offsetY = (i - (group.length - 1) / 2) * 22;
-    
-    // Desloca os tooltips para a direita do gráfico
-    const offsetX = chart.width - 80;  // Posição à direita (ajuste o valor 100 conforme necessário)
-    const y = item.point.y + offsetY;  // Mantém a posição Y original do gráfico
-
-    ctx.save();
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';  // Centraliza horizontalmente
-    ctx.textBaseline = 'middle';  // Centraliza verticalmente
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';  // Cor do fundo preto
-
-    // Medindo a largura do texto e criando o fundo preto
-    const textWidth = ctx.measureText(item.label).width;
-    const padding = 6;  // Espaço ao redor do texto
-    const boxWidth = textWidth + padding * 2;  // Largura do fundo
-    const boxHeight = 20;  // Altura do fundo preto
-
-    // Desenha o fundo preto à direita (ajuste o valor de deslocamento)
-    ctx.fillRect(offsetX - boxWidth / 2, y - boxHeight / 2, boxWidth, boxHeight);
-
-    // Desenha o texto branco dentro do fundo preto
-    ctx.fillStyle = '#fff';
-    ctx.fillText(item.label, offsetX, y);  // Centraliza o texto dentro do fundo preto
-
-    ctx.restore();
+    dados[jogador] = notas;
   });
-});
 
+  const cores = {
+    'Vegetti': '#FF6384', 'Payet': '#36A2EB', 'Lucas Piton': '#FFCE56', 'Zé Gabriel': '#4BC0C0',
+    'Leo Jardim': '#9966FF', 'Nuno': '#FF2222', 'Coutinho': '#36A9EC', 'Rayan': '#FFDE99',
+    'Paulinho': '#9BC9C9', 'Jair': '#6666FF'
+  };
 
-  }
-};
-
-
-
-
-
-
-      const highlightSameScoresPlugin = {
-        id: 'highlightSameScores',
-        afterDatasetsDraw(chart) {
-          const ctx = chart.ctx;
-          const datasets = chart.data.datasets;
-          const lastIndex = chart.data.labels.length - 1;
-
-          const scores = datasets.map(dataset => dataset.data[lastIndex]);
-
-          const groups = {};
-          scores.forEach((score, i) => {
-            if (!groups[score]) groups[score] = [];
-            groups[score].push(i);
-          });
-
-          Object.values(groups).forEach(group => {
-            if (group.length > 1) {
-              for (let i = 0; i < group.length - 1; i++) {
-                const player1 = chart.getDatasetMeta(group[i]).data[lastIndex];
-                const player2 = chart.getDatasetMeta(group[i + 1]).data[lastIndex];
-
-                ctx.beginPath();
-                ctx.moveTo(player1.x, player1.y);
-                ctx.lineTo(player2.x, player2.y);
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-              }
-            }
-          });
-        }
-      };
-
-    
-
-      const ctx = document.getElementById('iboVascoChart').getContext('2d');
-let chart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: jogos,
-    datasets: []
-  },
-  options: {
-    responsive: true,
-    interaction: {
-      mode: 'nearest',
-      intersect: false
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { color: '#fff' }
+  const ctx = document.getElementById('iboVascoChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: { labels: jogos, datasets: [] },
+    options: {
+      responsive: true,
+      layout: { padding: { right: 100, top: 10, bottom: 10 } },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#fff' } },
+        x: { ticks: { color: '#fff' } }
       },
-      x: {
-        ticks: { color: '#fff' }
-      }
-    },
-    plugins: {
-      legend: {
-        labels: {
-          color: '#fff',
-          font: {
-            size: 14,
-            weight: 'bold'
+      plugins: {
+        legend: { labels: { color: '#fff', font: { size: 14, weight: 'bold' } } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: Nota ${ctx.formattedValue}`
           }
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return `${context.dataset.label}: Nota ${context.formattedValue}`;
-          }
-        }
-      },
-      datalabels: {
-        display: false // Desativa os rótulos
-      }
-    },
-    layout: {
-      padding: {
-        right: 150,  // Ajuste o valor para aumentar o espaço à direita
-        top: 10,     // Ajuste o valor para ajustar a parte superior do gráfico, se necessário
-        bottom: 10    // Ajuste o valor para ajustar a parte inferior, se necessário
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          color: '#fff'
-        }
-      },
-      x: {
-        ticks: {
-          color: '#fff'
         }
       }
     }
-  },
-  plugins: [ChartDataLabels, multipleTooltipsPlugin, highlightSameScoresPlugin]
+  });
+
+  const filtro = document.getElementById('multiFiltro');
+  jogadores.forEach(jogador => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.dataset.jogador = jogador;
+
+    const span = document.createElement('span');
+    span.textContent = jogador;
+    span.className = 'jogador-nome';
+
+    div.appendChild(span);
+    filtro.appendChild(div);
+  });
+
+  let mouseDown = false;
+
+  filtro.addEventListener('mousedown', e => {
+  const optionDiv = e.target.closest('.option');
+  if (optionDiv) {
+    mouseDown = true;
+    lastHovered = optionDiv; // 👈 evita retrigger imediato
+    toggleOptionDiv(optionDiv);
+    e.preventDefault();
+  }
 });
 
 
 
+  let lastHovered = null;
+
+  filtro.addEventListener('mouseover', e => {
+  const optionDiv = e.target.closest('.option');
+  if (mouseDown && optionDiv && optionDiv !== lastHovered) {
+    toggleOptionDiv(optionDiv);
+    lastHovered = optionDiv;
+    e.preventDefault();
+  }
+});
 
 
 
-
-      function atualizarGrafico() {
-        const jogadoresSelecionados = playerFilter.getValue(true);
-        chart.data.datasets = jogadoresSelecionados.map(jogador => ({
-          label: jogador,
-          data: dados[jogador],
-          borderColor: cores[jogador],
-          backgroundColor: cores[jogador],
-          tension: 0.3,
-          fill: false
-        }));
-        chart.update();
-      }
+  document.addEventListener('mousedown', () => {
+  document.body.style.userSelect = 'none';
+});
+document.addEventListener('mouseup', () => {
+  mouseDown = false;
+  lastHovered = null;
+  document.body.style.userSelect = '';
+});
 
 
 
+  function toggleOptionDiv(div) {
+    div.classList.toggle('selected');
+    const selecionados = Array.from(filtro.querySelectorAll('.option.selected'))
+      .map(d => d.dataset.jogador);
 
-      document.getElementById('playerFilter').addEventListener('change', atualizarGrafico);
-    </script>
-  </div>
+    chart.data.datasets = selecionados
+      .filter(jogador => dados[jogador])
+      .map(jogador => ({
+        label: jogador,
+        data: dados[jogador],
+        borderColor: cores[jogador],
+        backgroundColor: cores[jogador],
+        tension: 0.3,
+        fill: false
+      }));
+
+    chart.update();
+  }
+
+  document.getElementById('clearFiltro').onclick = () => {
+    filtro.querySelectorAll('.option.selected').forEach(opt => opt.classList.remove('selected'));
+    chart.data.datasets = [];
+    chart.update();
+  };
+
+  document.getElementById('toggleFiltro').onclick = () => {
+    document.getElementById('multiFiltroWrapper').classList.toggle('show');
+    mouseDown = false;
+  };
+</script>
 </body>
 </html>
