@@ -3,80 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <title>IboVasco</title>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABh0lEQVRYR+2XwQ2DMBBFz1UAnIAOcAFcgA5yADnADnIAucwA5wAZyUktN7o4y9rMzUu2aLfL9H0TBDuENBQBiALwBkAZwAJYwz7URRHjHgGrAYW1S1X8AYODvAG3gYwDnANOfAUIVXw4woOrHVIKkefrgX+nqAUoU6D6KpaAtUE3gIFgJGAXQZZBbKcyKaFBSuRJgNsmwHTeJ0SQCWmG0Z7wL1oS5UAd2z8EqAnU0jRkGOsFe8t02b2RIK3CcwGuhUoPZgtp9kStvTIy17CIc9u7d/kB3G0Z9gwlyOYzHiFB4/2hgeIGvRaGFuMs/jy7ZAu5Q+SwFAdX4f2e+Zq0aHx/cNwAAAABJRU5ErkJggg==">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      margin: 40px;
-    }
-    .layout {
-      display: flex;
-      gap: 30px;
-      max-width: 100%;
-      padding: 20px 40px;
-      box-sizing: border-box;
-    }
-    #sidebar {
-      width: 250px;
-      background: #1b1b1b;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    canvas {
-      width: 100%;
-      height: 700px;
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    #mainContent {
-      flex-grow: 1;
-      min-width: 0;
-    }
-    button {
-      padding: 10px;
-      margin-bottom: 10px;
-      width: 100%;
-      background: #36A2EB;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #2389c9;
-    }
+   
+ 
+  body {
+    font-family: sans-serif;
+    background: #111;
+    color: #fff;
+    margin: 40px;
+  }
 
-    
+  .layout {
+    display: flex;
+    gap: 30px;
+    max-width: 100%;
+    padding: 20px 40px;
+    box-sizing: border-box;
+  }
 
-    .multi-filtro-wrapper {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-.multi-filtro-wrapper.show {
-  max-height: 500px;
-}
-.multi-filtro {
-  width: 100%;
-  max-height: 400px;
-  overflow-y: auto;
-  background-color: #2a2a2a;
-  border-radius: 8px;
-  padding: 5px;
+  #sidebar {
+  width: 250px;
+  background: #1b1b1b;
+  padding: 20px;
+  border-radius: 10px;
+  height: 680px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  user-select: none;
+  overflow: hidden; /* <- Deixe aqui pra não vazar! */
 }
 
-/* cada jogador (não selecionado) */
-.multi-filtro .option {
+
+  canvas {
+    width: 100%;
+    height: 700px;
+    background: #222;
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  #mainContent {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  button {
+    padding: 10px;
+    margin-bottom: 6px;
+    width: 100%;
+    background: #36A2EB;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #2389c9;
+  }
+
+  .multi-filtro-wrapper {
+  max-height: 0; /* <<< importante para começar fechado */
+  overflow: hidden;
+  transition: max-height 0.4s ease; /* <<< adiciona transição */
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+.multi-filtro-wrapper.show {
+  max-height: 800px;
+}
+
+
+.multi-filtro {
+  width: 100%;
+  height: 100%; /* <<< Aqui é o principal ajuste */
+  overflow-y: auto; /* Scroll automático */
+  background-color: #222121;
+  border-radius: 8px;
+  padding: 5px;
+  display: block; /* <<< Voltar ao padrão para listas */
+  gap: 4px;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+
+
+
+  /* cada jogador (não selecionado) */
+  .multi-filtro .option {
   height: 38px;
   padding: 6px 10px;
-  border-radius: 5px;
+  border-radius: 8px;
   background-color: #3a3a3a;
   color: #fff;
   cursor: pointer;
@@ -85,67 +105,102 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-}
-
-/* selecionado com faixa */
-.multi-filtro .option.selected {
-  background: #d9d9d9;
-  color: black;
-  font-weight: bold;
-}
-
-/* faixa diagonal ajustada */
-.multi-filtro .option.selected::before {
-  content: '';
-  position: absolute;
-  width: 120%;
-  height: 100%;
-  top: 0;
-  left: -10%;
-  transform: rotate(-45deg);
-  background: white;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* cruz de malta */
-.multi-filtro .option.selected::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/d3/Cruz_de_Malta.svg');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 3;
-  pointer-events: none;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 4px; /* <<< Adiciona esta linha! */
 }
 
 
 
 
-/* nome do jogador */
-.multi-filtro .option.selected > *,
-.multi-filtro .option > * {
-  position: relative;
-  z-index: 3;
-}
+  /* selecionado com faixa */
+  .multi-filtro .option.selected {
+    background: #d9d9d9;
+    color: black;
+    font-weight: bold;
+    border-radius: 8px;
+  }
 
-.jogador-nome {
-  flex-grow: 1;
-  font-size: 14px;
-  z-index: 3;
-  line-height: 1.4;
-}
+  .multi-filtro .option.selected::before {
+    content: '';
+    position: absolute;
+    width: 120%;
+    height: 100%;
+    top: 0;
+    left: -10%;
+    transform: rotate(-45deg);
+    background: white;
+    border-top: 1px solid rgb(255, 255, 255);
+    border-bottom: 1px solid rgb(255, 255, 255);
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 8px;
+  }
 
+  /* cruz de malta */
+  .multi-filtro .option.selected::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background:
+      linear-gradient(to bottom, red 100%, transparent 0),
+      linear-gradient(to right, red 100%, transparent 0),
+      linear-gradient(to right, red 10px, transparent 0),
+      linear-gradient(to right, red 10px, transparent 0),
+      linear-gradient(to bottom, red 10px, transparent 0),
+      linear-gradient(to bottom, red 10px, transparent 0);
+    background-repeat: no-repeat;
+    background-size:
+      8px 100%,   /* vertical */
+      100% 8px,   /* horizontal */
+      10px 3px,   /* top */
+      10px 3px,   /* bottom */
+      3px 10px,   /* left */
+      3px 10px;   /* right */
+    background-position:
+      center,
+      center,
+      center top,
+      center bottom,
+      left center,
+      right center;
+    z-index: 3;
+    pointer-events: none;
+  }
 
+  /* nome do jogador */
+  .multi-filtro .option.selected > *,
+  .multi-filtro .option > * {
+    position: relative;
+    z-index: 3;
+  }
 
+  .jogador-nome {
+    flex-grow: 1;
+    font-size: 14px;
+    z-index: 3;
+    line-height: 1.4;
+  }
+
+  /* Scrollbar estilizado */
+  .multi-filtro::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .multi-filtro::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+  }
+
+  .multi-filtro::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 8px;
+    border: 2px solid #2a2a2a;
+  }
 
 
 
@@ -168,7 +223,7 @@
   </div>
 
 <script>
-  const jogadores = ['Vegetti', 'Payet', 'Lucas Piton', 'Zé Gabriel', 'Leo Jardim','Nuno', 'Coutinho', 'Rayan', 'Paulinho', 'Jair'];
+  const jogadores = ['Vegetti', 'Payet', 'Lucas Piton', 'Zé Gabriel', 'Leo Jardim','Nuno', 'Coutinho', 'Rayan', 'Paulinho', 'Jair', 'Zé Gabriel', 'Leo Jardim','Nuno', 'Coutinho', 'Rayan', 'Paulinho', 'Jair'];
   const jogos = ['Cariocão', 'Santos (C)', 'Melgar (F)', 'Corinthians (F)', 'Puerto Cabello (C)', 'Sport (C)', 'Ceará (F)', 'Flamengo (N)'];
 
   const notasIniciais = {
@@ -205,27 +260,78 @@
     'Paulinho': '#9BC9C9', 'Jair': '#6666FF'
   };
 
+
+  const tooltipInlinePlugin = {
+  id: 'tooltipInlinePlugin',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const datasetsVisiveis = chart.data.datasets.filter((ds, i) => chart.isDatasetVisible(i));
+    const lastIndex = chart.data.labels.length - 1;
+    let usedYs = [];
+
+    const ordenados = datasetsVisiveis
+      .map(dataset => {
+        const datasetIndex = chart.data.datasets.indexOf(dataset);
+        const nota = dataset.data[lastIndex];
+        const meta = chart.getDatasetMeta(datasetIndex);
+        const point = meta.data[lastIndex];
+        return { dataset, nota, point };
+      })
+      .filter(obj => obj.point)
+      .sort((a, b) => b.nota - a.nota);
+
+    ordenados.forEach(({ dataset, point }) => {
+      let desiredY = point.y;
+      while (usedYs.some(y => Math.abs(y - desiredY) < 16)) desiredY += 16;
+      usedYs.push(desiredY);
+
+      const offsetX = 12;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(point.x, point.y);
+      ctx.lineTo(point.x + offsetX, desiredY);
+      ctx.strokeStyle = dataset.borderColor;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.closePath();
+
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = dataset.borderColor;
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 4;
+      ctx.strokeText(dataset.label, point.x + offsetX + 4, desiredY);
+      ctx.fillText(dataset.label, point.x + offsetX + 4, desiredY);
+      ctx.restore();
+    });
+  }
+};
+
+
   const ctx = document.getElementById('iboVascoChart').getContext('2d');
   const chart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: jogos, datasets: [] },
-    options: {
-      responsive: true,
-      layout: { padding: { right: 100, top: 10, bottom: 10 } },
-      scales: {
-        y: { beginAtZero: true, ticks: { color: '#fff' } },
-        x: { ticks: { color: '#fff' } }
-      },
-      plugins: {
-        legend: { labels: { color: '#fff', font: { size: 14, weight: 'bold' } } },
-        tooltip: {
-          callbacks: {
-            label: ctx => `${ctx.dataset.label}: Nota ${ctx.formattedValue}`
-          }
+  type: 'line',
+  data: { labels: jogos, datasets: [] },
+  options: {
+    responsive: true,
+    layout: { padding: { right: 100, top: 10, bottom: 10 } },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: '#fff' } },
+      x: { ticks: { color: '#fff' } }
+    },
+    plugins: {
+      legend: { labels: { color: '#fff', font: { size: 14, weight: 'bold' } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: Nota ${ctx.formattedValue}`
         }
       }
     }
-  });
+  },
+  plugins: [tooltipInlinePlugin]  // <<< ADICIONA ESSA LINHA AQUI
+});
+
 
   const filtro = document.getElementById('multiFiltro');
   jogadores.forEach(jogador => {
