@@ -227,7 +227,13 @@
 <section style="margin-top: 40px;">
   <h2>Inserir avaliação</h2>
   <form id="formAvaliacao">
-    <label>Jogador: <input type="text" id="jogadorInput" required></label><br><br>
+    
+    <label>Jogador:
+  <select id="jogadorInput" required>
+    <option value="">Carregando jogadores...</option>
+  </select>
+</label><br><br>
+    
     <label>Nota: <input type="number" id="notaInput" step="0.1" required></label><br><br>
     <label>Partida: <input type="text" id="partidaInput" required></label><br><br>
     <label>Rodada: <input type="number" id="rodadaInput" required></label><br><br>
@@ -450,6 +456,7 @@ document.addEventListener('mouseup', () => {
 
 
 <script type="module">
+  
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
   import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
@@ -465,6 +472,31 @@ document.addEventListener('mouseup', () => {
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+
+import { getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+async function carregarJogadores() {
+  const select = document.getElementById("jogadorInput");
+  select.innerHTML = '<option value="">Selecione um jogador</option>';
+
+  try {
+    const snapshot = await getDocs(collection(db, "Jogadores_IboVasco"));
+    snapshot.forEach(doc => {
+      const nome = doc.data().nome;
+      const option = document.createElement("option");
+      option.value = nome;
+      option.textContent = nome;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erro ao carregar jogadores:", error);
+    select.innerHTML = '<option value="">Erro ao carregar jogadores</option>';
+  }
+}
+
+carregarJogadores();
+
+  
 
   document.getElementById("formAvaliacao").addEventListener("submit", async function salvarNota(event) {
     event.preventDefault();
