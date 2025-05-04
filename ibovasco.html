@@ -468,6 +468,8 @@ document.addEventListener('mouseup', () => {
 
 
 <script type="module">
+
+
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
   import {
     getFirestore,
@@ -488,39 +490,56 @@ document.addEventListener('mouseup', () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Jogadores e posições
-  async function carregarJogadoresTopo() {
-    const jogadorSelect = document.getElementById("filtroJogador");
-    const posicaoSelect = document.getElementById("filtroPosicao");
 
-    const posicoesSet = new Set();
 
-    try {
-      const snapshot = await getDocs(collection(db, "Jogadores_IboVasco"));
-      snapshot.forEach(doc => {
-        const dados = doc.data();
-        if (dados.nome) {
-          const opt = document.createElement("option");
-          opt.value = dados.nome;
-          opt.textContent = dados.nome;
-          jogadorSelect.appendChild(opt);
-        }
-        if (dados.posicao) {
-          posicoesSet.add(dados.posicao);
-        }
-      });
+async function carregarJogadoresComPosicao() {
+  const jogadorSelect = document.getElementById("jogadorInput");
+  const posicaoSelect = document.getElementById("posicaoInput");
 
-      [...posicoesSet].sort().forEach(pos => {
-        const opt = document.createElement("option");
-        opt.value = pos;
-        opt.textContent = pos.charAt(0).toUpperCase() + pos.slice(1);
-        posicaoSelect.appendChild(opt);
-      });
+  jogadorSelect.innerHTML = '<option value="">Selecione um jogador</option>';
+  posicaoSelect.innerHTML = '<option value="">Selecione</option>';
 
-    } catch (error) {
-      console.error("Erro ao carregar jogadores:", error);
-    }
+  try {
+    const snapshot = await getDocs(collection(db, "Jogadores_IboVasco"));
+    const jogadores = [];
+
+    snapshot.forEach(doc => {
+      const dados = doc.data();
+      if (dados.nome && dados.posicao) {
+        jogadores.push({ nome: dados.nome, posicao: dados.posicao });
+      }
+    });
+
+    jogadores.forEach(j => {
+      const option = document.createElement("option");
+      option.value = j.nome;
+      option.textContent = j.nome;
+      option.dataset.posicao = j.posicao;
+      jogadorSelect.appendChild(option);
+    });
+
+    jogadorSelect.addEventListener("change", () => {
+      const selected = jogadorSelect.selectedOptions[0];
+      const posicao = selected?.dataset?.posicao;
+      if (posicao) {
+        posicaoSelect.innerHTML = `<option value="${posicao}">${posicao}</option>`;
+      } else {
+        posicaoSelect.innerHTML = '<option value="">Selecione</option>';
+      }
+    });
+
+  } catch (error) {
+    console.error("Erro ao carregar jogadores:", error);
+    jogadorSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+    posicaoSelect.innerHTML = '<option value="">Erro</option>';
   }
+}
+
+carregarJogadoresComPosicao();
+
+
+
+  
 
   // Partidas e rodadas
   async function carregarPartidasTopo() {
