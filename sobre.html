@@ -206,68 +206,6 @@
 </head>
 
 
-<script type="module">
-
-
-async function salvarNota(event) {
-  event.preventDefault(); // evita recarregar a página
-
-  const jogador = document.getElementById("jogadorInput").value;
-  const nota = parseFloat(document.getElementById("notaInput").value);
-  const partida = document.getElementById("partidaInput").value;
-  const rodada = parseInt(document.getElementById("rodadaInput").value);
-  const posicao = document.getElementById("posicaoInput").value;
-  const publico = document.getElementById("publicoInput").checked;
-  const usuario = "anderson_diniz"; // depois substituímos pelo UID real
-  const data = new Date().toISOString().slice(0, 10);
-
-  try {
-    await addDoc(collection(db, "Expresso_IboVasco"), {
-      jogador,
-      nota,
-      partida,
-      data,
-      usuario,
-      rodada,
-      posicao,
-      publico
-    });
-
-    alert("Dados salvos com sucesso!");
-    document.getElementById("formAvaliacao").reset();
-  } catch (error) {
-    alert("Erro ao salvar: " + error.message);
-  }
-}
-
-// Conecta o formulário ao evento
-document.getElementById("formAvaliacao").addEventListener("submit", salvarNota);
-
-
-
-
-
-  
-  // Firebase imports via CDN
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
-  // Config gerado no Firebase
-const firebaseConfig = {
-  apiKey: "SUA_API_KEY", // substitua aqui
-  authDomain: "seu-projeto.firebaseapp.com",
-  projectId: "seu-projeto",
-  storageBucket: "seu-projeto.appspot.com",
-  messagingSenderId: "XXXXXXXXXXXX",
-  appId: "1:XXXXXXXXXXXX:web:xxxxxxxxxxxxxx"
-};
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-
-</script>
-
 
 
   
@@ -509,4 +447,49 @@ document.addEventListener('mouseup', () => {
   };
 </script>
 </body>
+
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "seu-projeto.firebaseapp.com",
+    projectId: "seu-projeto",
+    storageBucket: "seu-projeto.appspot.com",
+    messagingSenderId: "XXXXXXXXXXXX",
+    appId: "1:XXXXXXXXXXXX:web:xxxxxxxxxxxxxx"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  document.getElementById("formAvaliacao").addEventListener("submit", async function salvarNota(event) {
+    event.preventDefault();
+
+    const jogador = document.getElementById("jogadorInput").value;
+    const nota = parseFloat(document.getElementById("notaInput").value);
+    const partida = document.getElementById("partidaInput").value;
+    const rodada = parseInt(document.getElementById("rodadaInput").value);
+    const posicao = document.getElementById("posicaoInput").value;
+    const publico = document.getElementById("publicoInput").checked;
+    const usuario = "anderson_diniz";
+    const data = new Date().toISOString().slice(0, 10);
+
+    try {
+      await addDoc(collection(db, "Expresso_IboVasco"), {
+        jogador, nota, partida, data, usuario, rodada, posicao, publico
+      });
+      alert("Dados salvos com sucesso!");
+      document.getElementById("formAvaliacao").reset();
+    } catch (error) {
+      alert("Erro ao salvar: " + error.message);
+    }
+  });
+</script>
+
+
+
+  
 </html>
