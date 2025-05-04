@@ -506,48 +506,49 @@ async function carregarJogadores() {
 
 carregarJogadores();
 
-async function carregarPartidasERodadas() {
-  const partidaSelect = document.getElementById("partidaInput");
-  const rodadaSelect = document.getElementById("rodadaInput");
+async function carregarJogadores() {
+  const jogadorSelect = document.getElementById("jogadorInput");
+  const posicaoSelect = document.getElementById("posicaoInput");
 
-  partidaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
-  rodadaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
+  jogadorSelect.innerHTML = '<option value="">Selecione um jogador</option>';
+  posicaoSelect.innerHTML = '<option value="">Selecione</option>';
 
   try {
-    const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
-    const partidas = [];
+    const snapshot = await getDocs(collection(db, "Jogadores_IboVasco"));
+    const jogadores = [];
 
     snapshot.forEach(doc => {
       const dados = doc.data();
-      if (dados.nome && dados.rodada !== undefined) {
-        partidas.push({ nome: dados.nome, rodada: dados.rodada });
+      if (dados.nome && dados.posicao) {
+        jogadores.push({ nome: dados.nome, posicao: dados.posicao });
       }
     });
 
-    // Ordenar por número da rodada, se desejar
-    partidas.sort((a, b) => a.rodada - b.rodada);
-
-    partidas.forEach(p => {
+    jogadores.forEach(j => {
       const option = document.createElement("option");
-      option.value = p.nome;
-      option.textContent = `${p.nome} (Rodada ${p.rodada})`;
-      option.dataset.rodada = p.rodada;
-      partidaSelect.appendChild(option);
+      option.value = j.nome;
+      option.textContent = j.nome;
+      option.dataset.posicao = j.posicao;
+      jogadorSelect.appendChild(option);
     });
 
-    // Quando o usuário selecionar a partida, preenche automaticamente a rodada
-    partidaSelect.addEventListener("change", () => {
-      const selected = partidaSelect.selectedOptions[0];
-      const rodada = selected?.dataset?.rodada;
-      rodadaSelect.innerHTML = `<option value="${rodada}">${rodada}</option>`;
+    jogadorSelect.addEventListener("change", () => {
+      const selected = jogadorSelect.selectedOptions[0];
+      const posicao = selected?.dataset?.posicao;
+      if (posicao) {
+        posicaoSelect.innerHTML = `<option value="${posicao}">${posicao}</option>`;
+      } else {
+        posicaoSelect.innerHTML = '<option value="">Selecione</option>';
+      }
     });
 
   } catch (error) {
-    console.error("Erro ao carregar partidas:", error);
-    partidaSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-    rodadaSelect.innerHTML = '<option value="">Erro</option>';
+    console.error("Erro ao carregar jogadores:", error);
+    jogadorSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+    posicaoSelect.innerHTML = '<option value="">Erro</option>';
   }
 }
+
 
 carregarPartidasERodadas();
 
