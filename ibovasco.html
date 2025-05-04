@@ -485,24 +485,6 @@ document.addEventListener('mouseup', () => {
 
 import { getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-async function carregarJogadores() {
-  const select = document.getElementById("jogadorInput");
-  select.innerHTML = '<option value="">Selecione um jogador</option>';
-
-  try {
-    const snapshot = await getDocs(collection(db, "Jogadores_IboVasco"));
-    snapshot.forEach(doc => {
-      const nome = doc.data().nome;
-      const option = document.createElement("option");
-      option.value = nome;
-      option.textContent = nome;
-      select.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Erro ao carregar jogadores:", error);
-    select.innerHTML = '<option value="">Erro ao carregar jogadores</option>';
-  }
-}
 
 carregarJogadores();
 
