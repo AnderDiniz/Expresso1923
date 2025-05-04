@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastrar Jogadores - IboVasco</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+ const firebaseConfig = {
+    apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
+    authDomain: "expresso1923-f760c.firebaseapp.com",
+    projectId: "expresso1923-f760c",
+    storageBucket: "expresso1923-f760c.firebasestorage.app",
+    messagingSenderId: "559120791902",
+    appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
+    measurementId: "G-61BS7RLBB6"
+  };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("formJogador");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const nome = document.getElementById("nomeJogador").value.trim();
+        const posicao = document.getElementById("posicaoJogador").value;
+
+        if (!nome || !posicao) {
+          alert("Preencha todos os campos!");
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, "jogadores"), {
+            nome: nome,
+            posicao: posicao
+          });
+          alert("Jogador cadastrado com sucesso!");
+          form.reset();
+        } catch (error) {
+          alert("Erro ao cadastrar jogador: " + error.message);
+        }
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 40px;
+    }
+    form {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    label {
+      display: block;
+      margin-bottom: 15px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      margin-top: 5px;
+    }
+    button {
+      background: #36A2EB;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2389c9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cadastrar Jogador</h1>
+  <form id="formJogador">
+    <label>Nome do Jogador:
+      <input type="text" id="nomeJogador" required>
+    </label>
+    <label>Posição:
+      <select id="posicaoJogador" required>
+        <option value="">Selecione</option>
+        <option value="goleiro">Goleiro</option>
+        <option value="zagueiro">Zagueiro</option>
+        <option value="lateral">Lateral</option>
+        <option value="meia">Meia</option>
+        <option value="atacante">Atacante</option>
+      </select>
+    </label>
+    <button type="submit">Salvar Jogador</button>
+  </form>
+</body>
+</html>
