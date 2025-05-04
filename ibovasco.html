@@ -235,8 +235,18 @@
 </label><br><br>
     
     <label>Nota: <input type="number" id="notaInput" step="0.1" required></label><br><br>
-    <label>Partida: <input type="text" id="partidaInput" required></label><br><br>
-    <label>Rodada: <input type="number" id="rodadaInput" required></label><br><br>
+<label>Partida:
+  <select id="partidaInput" required>
+    <option value="">Carregando partidas...</option>
+  </select>
+</label><br><br>
+
+<label>Rodada:
+  <select id="rodadaInput" required>
+    <option value="">Selecione uma partida</option>
+  </select>
+</label><br><br>
+
     <label>Posição:
       <select id="posicaoInput" required>
         <option value="">Selecione</option>
@@ -495,6 +505,61 @@ async function carregarJogadores() {
 }
 
 carregarJogadores();
+
+async function carregarPartidasERodadas() {
+  const partidaSelect = document.getElementById("partidaInput");
+  const rodadaSelect = document.getElementById("rodadaInput");
+
+  partidaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
+  rodadaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
+
+  try {
+    const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
+    const partidas = [];
+
+    snapshot.forEach(doc => {
+      const dados = doc.data();
+      if (dados.nome && dados.rodada !== undefined) {
+        partidas.push({ nome: dados.nome, rodada: dados.rodada });
+      }
+    });
+
+    // Ordenar por número da rodada, se desejar
+    partidas.sort((a, b) => a.rodada - b.rodada);
+
+    partidas.forEach(p => {
+      const option = document.createElement("option");
+      option.value = p.nome;
+      option.textContent = `${p.nome} (Rodada ${p.rodada})`;
+      option.dataset.rodada = p.rodada;
+      partidaSelect.appendChild(option);
+    });
+
+    // Quando o usuário selecionar a partida, preenche automaticamente a rodada
+    partidaSelect.addEventListener("change", () => {
+      const selected = partidaSelect.selectedOptions[0];
+      const rodada = selected?.dataset?.rodada;
+      rodadaSelect.innerHTML = `<option value="${rodada}">${rodada}</option>`;
+    });
+
+  } catch (error) {
+    console.error("Erro ao carregar partidas:", error);
+    partidaSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+    rodadaSelect.innerHTML = '<option value="">Erro</option>';
+  }
+}
+
+carregarPartidasERodadas();
+
+
+
+
+
+
+
+
+
+
 
   
 
