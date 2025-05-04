@@ -469,32 +469,31 @@ document.addEventListener('mouseup', () => {
 
 <script type="module">
 
+// Firebase + filtros automáticos: Jogador/Posição e Partida/Rodada
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import {
-    getFirestore,
-    collection,
-    getDocs
-  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
+  authDomain: "expresso1923-f760c.firebaseapp.com",
+  projectId: "expresso1923-f760c",
+  storageBucket: "expresso1923-f760c.firebasestorage.app",
+  messagingSenderId: "559120791902",
+  appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
+  measurementId: "G-61BS7RLBB6"
+};
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
-    authDomain: "expresso1923-f760c.firebaseapp.com",
-    projectId: "expresso1923-f760c",
-    storageBucket: "expresso1923-f760c.firebasestorage.app",
-    messagingSenderId: "559120791902",
-    appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
-    measurementId: "G-61BS7RLBB6"
-  };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-
-
+// Carrega jogadores e vincula posição automaticamente
 async function carregarJogadoresComPosicao() {
-  const jogadorSelect = document.getElementById("jogadorInput");
-  const posicaoSelect = document.getElementById("posicaoInput");
+  const jogadorSelect = document.getElementById("filtroJogador");
+  const posicaoSelect = document.getElementById("filtroPosicao");
 
   jogadorSelect.innerHTML = '<option value="">Selecione um jogador</option>';
   posicaoSelect.innerHTML = '<option value="">Selecione</option>';
@@ -535,59 +534,63 @@ async function carregarJogadoresComPosicao() {
   }
 }
 
-carregarJogadoresComPosicao();
+// Carrega partidas e vincula rodada automaticamente
+async function carregarPartidasComRodadas() {
+  const partidaSelect = document.getElementById("filtroPartida");
+  const rodadaSelect = document.getElementById("filtroRodada");
 
+  partidaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
+  rodadaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
 
+  const partidaRodadaMap = {}; // { "Santos": 1 }
 
-  
-
-  // Partidas e rodadas
-  async function carregarPartidasTopo() {
-    const partidaSelect = document.getElementById("filtroPartida");
-    const rodadaSelect = document.getElementById("filtroRodada");
-
-    const rodadasSet = new Set();
-
-    try {
-      const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
-      snapshot.forEach(doc => {
-        const dados = doc.data();
-        if (dados.nome && dados.rodada !== undefined) {
-          const opt = document.createElement("option");
-          opt.value = dados.nome;
-          opt.textContent = `${dados.nome} (Rodada ${dados.rodada})`;
-          partidaSelect.appendChild(opt);
-          rodadasSet.add(dados.rodada);
-        }
-      });
-
-      [...rodadasSet].sort((a, b) => a - b).forEach(rodada => {
+  try {
+    const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
+    snapshot.forEach(doc => {
+      const dados = doc.data();
+      if (dados.nome && dados.rodada !== undefined) {
         const opt = document.createElement("option");
-        opt.value = rodada;
-        opt.textContent = rodada;
-        rodadaSelect.appendChild(opt);
-      });
+        opt.value = dados.nome;
+        opt.textContent = `${dados.nome} (Rodada ${dados.rodada})`;
+        partidaSelect.appendChild(opt);
+        partidaRodadaMap[dados.nome] = dados.rodada;
+      }
+    });
 
-    } catch (error) {
-      console.error("Erro ao carregar partidas:", error);
-    }
+    partidaSelect.addEventListener("change", () => {
+      const nomeSelecionado = partidaSelect.value;
+      const rodada = partidaRodadaMap[nomeSelecionado];
+      if (rodada !== undefined) {
+        rodadaSelect.innerHTML = `<option value="${rodada}">${rodada}</option>`;
+      } else {
+        rodadaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
+      }
+    });
+
+  } catch (error) {
+    console.error("Erro ao carregar partidas:", error);
   }
+}
 
-  // Notas possíveis (ex: de 0 a 10)
-  function carregarNotas() {
-    const notaSelect = document.getElementById("filtroNota");
-    for (let i = 0; i <= 10; i++) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = i;
-      notaSelect.appendChild(opt);
-    }
+// Notas de 0 a 10
+function carregarNotas() {
+  const notaSelect = document.getElementById("filtroNota");
+  notaSelect.innerHTML = '<option value="">Selecione</option>';
+  for (let i = 0; i <= 10; i++) {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = i;
+    notaSelect.appendChild(opt);
   }
+}
 
-  // Executar todos os carregamentos
-  carregarJogadoresTopo();
-  carregarPartidasTopo();
+// Inicializa todos os filtros
+document.addEventListener("DOMContentLoaded", () => {
+  carregarJogadoresComPosicao();
+  carregarPartidasComRodadas();
   carregarNotas();
+});
+
 </script>
 
 
