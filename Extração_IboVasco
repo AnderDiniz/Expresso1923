@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Exportar Avaliações - IboVasco</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    // 🔧 Insira aqui os dados reais do seu projeto
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "seu-projeto.firebaseapp.com",
+      projectId: "seu-projeto"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function exportarCSV() {
+      const querySnapshot = await getDocs(collection(db, "Expresso_IboVasco"));
+      let csv = "jogador,nota,partida,data,usuario,rodada,posicao,publico\n";
+
+      querySnapshot.forEach(doc => {
+        const d = doc.data();
+        csv += `"${d.jogador ?? ''}","${d.nota ?? ''}","${d.partida ?? ''}","${d.data ?? ''}","${d.usuario ?? ''}","${d.rodada ?? ''}","${d.posicao ?? ''}","${d.publico ?? ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "avaliacoes_ibovasco.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Deixa a função global para uso no botão
+    window.exportarCSV = exportarCSV;
+  </script>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    button {
+      background: #36A2EB;
+      border: none;
+      color: white;
+      font-size: 16px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2389c9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Exportar avaliações para CSV</h1>
+  <button onclick="exportarCSV()">📥 Baixar CSV</button>
+</body>
+</html>
