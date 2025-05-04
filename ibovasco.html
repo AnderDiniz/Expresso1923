@@ -205,28 +205,36 @@
 
 
 
-    
-.top-filtros {
+    .top-filtros {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  padding-bottom: 10px;
+  gap: 10px;
+  margin: 20px 0;
+  align-items: center;
 }
 
-.top-filtros select {
-  padding: 10px;
-  background: #fff;
-  color: #000;
-  font-weight: bold;
-  border-radius: 8px;
+.top-filtros select,
+.top-filtros button {
+  padding: 8px 12px;
+  border-radius: 5px;
   border: none;
+  font-weight: bold;
   font-size: 14px;
+  background: white;
+  color: black;
   cursor: pointer;
-  min-width: 140px;
 }
 
+.top-filtros button {
+  background-color: #36A2EB;
+  color: white;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.top-filtros button:hover {
+  background-color: #2389c9;
+}
 
 
 
