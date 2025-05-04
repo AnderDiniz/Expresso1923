@@ -213,6 +213,7 @@
   align-items: center;
 }
 
+
 .top-filtros select {
   padding: 8px 12px;
   border-radius: 5px;
@@ -222,7 +223,8 @@
   background-color: white;
   color: black;
   cursor: pointer;
-  width: auto;
+  height: 38px; /* altura padrão para igualar ao botão */
+  box-sizing: border-box;
 }
 
 .top-filtros button {
@@ -235,9 +237,14 @@
   color: white;
   cursor: pointer;
   transition: background 0.3s;
-  width: auto;
+  height: 38px; /* mesma altura do select */
+  box-sizing: border-box;
 }
 
+
+
+
+    
 
 .top-filtros button:hover {
   background-color: #2389c9;
