@@ -1,8 +1,101 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Cadastrar Jogadores - IboVasco</title>
+  <meta charset="UTF-8" />
+  <title>Cadastro IboVasco</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 40px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #36A2EB;
+    }
+
+    form {
+      background: #1e1e1e;
+      padding: 20px;
+      margin-bottom: 40px;
+      border-radius: 10px;
+      max-width: 400px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background: #36A2EB;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2389c9;
+    }
+
+    section {
+      margin: 0 auto;
+      max-width: 500px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Cadastro - IboVasco</h1>
+
+  <section>
+    <!-- Formulário para Jogador -->
+    <form id="formJogador">
+      <h2>Cadastro de Jogador</h2>
+      <label>Nome do jogador:
+        <input type="text" id="nomeJogador" required />
+      </label>
+      <label>Posição:
+        <select id="posicaoJogador" required>
+          <option value="">Selecione</option>
+          <option value="goleiro">Goleiro</option>
+          <option value="zagueiro">Zagueiro</option>
+          <option value="lateral">Lateral</option>
+          <option value="meia">Meia</option>
+          <option value="atacante">Atacante</option>
+        </select>
+      </label>
+      <button type="submit">Salvar Jogador</button>
+    </form>
+
+    <!-- Formulário para Partida -->
+    <form id="formPartida">
+      <h2>Cadastro de Partida</h2>
+      <label>Nome da Partida:
+        <input type="text" id="nomePartida" required />
+      </label>
+      <label>Rodada:
+        <input type="number" id="numeroRodada" required />
+      </label>
+      <button type="submit">Salvar Partida</button>
+    </form>
+  </section>
+
+  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
@@ -20,85 +113,37 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const form = document.getElementById("formJogador");
+    // Cadastro Jogador
+    document.getElementById("formJogador").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nomeJogador").value.trim();
+      const posicao = document.getElementById("posicaoJogador").value;
+      const data = new Date().toISOString();
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const nome = document.getElementById("nomeJogador").value.trim();
-        const posicao = document.getElementById("posicaoJogador").value;
+      try {
+        await addDoc(collection(db, "Jogadores_IboVasco"), { nome, posicao, data });
+        alert("Jogador cadastrado com sucesso!");
+        e.target.reset();
+      } catch (err) {
+        alert("Erro ao salvar jogador: " + err.message);
+      }
+    });
 
-        if (!nome || !posicao) {
-          alert("Preencha todos os campos!");
-          return;
-        }
+    // Cadastro Partida
+    document.getElementById("formPartida").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nomePartida").value.trim();
+      const rodada = parseInt(document.getElementById("numeroRodada").value);
+      const data = new Date().toISOString();
 
-        try {
-          await addDoc(collection(db, "jogadores"), {
-            nome: nome,
-            posicao: posicao
-          });
-          alert("Jogador cadastrado com sucesso!");
-          form.reset();
-        } catch (error) {
-          alert("Erro ao cadastrar jogador: " + error.message);
-        }
-      });
+      try {
+        await addDoc(collection(db, "Partidas_IboVasco"), { nome, rodada, data });
+        alert("Partida cadastrada com sucesso!");
+        e.target.reset();
+      } catch (err) {
+        alert("Erro ao salvar partida: " + err.message);
+      }
     });
   </script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 40px;
-    }
-    form {
-      background: #222;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    label {
-      display: block;
-      margin-bottom: 15px;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 8px;
-      border-radius: 5px;
-      border: none;
-      margin-top: 5px;
-    }
-    button {
-      background: #36A2EB;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #2389c9;
-    }
-  </style>
-</head>
-<body>
-  <h1>Cadastrar Jogador</h1>
-  <form id="formJogador">
-    <label>Nome do Jogador:
-      <input type="text" id="nomeJogador" required>
-    </label>
-    <label>Posição:
-      <select id="posicaoJogador" required>
-        <option value="">Selecione</option>
-        <option value="goleiro">Goleiro</option>
-        <option value="zagueiro">Zagueiro</option>
-        <option value="lateral">Lateral</option>
-        <option value="meia">Meia</option>
-        <option value="atacante">Atacante</option>
-      </select>
-    </label>
-    <button type="submit">Salvar Jogador</button>
-  </form>
 </body>
 </html>
