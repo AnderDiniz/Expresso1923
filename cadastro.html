@@ -98,29 +98,39 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, query, where
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
- const firebaseConfig = {
-    apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
-    authDomain: "expresso1923-f760c.firebaseapp.com",
-    projectId: "expresso1923-f760c",
-    storageBucket: "expresso1923-f760c.firebasestorage.app",
-    messagingSenderId: "559120791902",
-    appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
-    measurementId: "G-61BS7RLBB6"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
+      authDomain: "expresso1923-f760c.firebaseapp.com",
+      projectId: "expresso1923-f760c",
+      storageBucket: "expresso1923-f760c.firebasestorage.app",
+      messagingSenderId: "559120791902",
+      appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
+      measurementId: "G-61BS7RLBB6"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Cadastro Jogador
+    // Cadastro Jogador (com checagem de duplicata)
     document.getElementById("formJogador").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const nome = document.getElementById("nomeJogador").value.trim();
+      const nome = document.getElementById("nomeJogador").value.trim().toLowerCase();
       const posicao = document.getElementById("posicaoJogador").value;
       const data = new Date().toISOString();
 
       try {
+        const q = query(collection(db, "Jogadores_IboVasco"), where("nome", "==", nome));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          alert("Este jogador já está cadastrado.");
+          return;
+        }
+
         await addDoc(collection(db, "Jogadores_IboVasco"), { nome, posicao, data });
         alert("Jogador cadastrado com sucesso!");
         e.target.reset();
@@ -129,14 +139,22 @@
       }
     });
 
-    // Cadastro Partida
+    // Cadastro Partida (com checagem de duplicata)
     document.getElementById("formPartida").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const nome = document.getElementById("nomePartida").value.trim();
+      const nome = document.getElementById("nomePartida").value.trim().toLowerCase();
       const rodada = parseInt(document.getElementById("numeroRodada").value);
       const data = new Date().toISOString();
 
       try {
+        const q = query(collection(db, "Partidas_IboVasco"), where("nome", "==", nome));
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          alert("Essa partida já foi cadastrada.");
+          return;
+        }
+
         await addDoc(collection(db, "Partidas_IboVasco"), { nome, rodada, data });
         alert("Partida cadastrada com sucesso!");
         e.target.reset();
