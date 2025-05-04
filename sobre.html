@@ -265,24 +265,7 @@ const firebaseConfig = {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Exemplo de envio de dados (substituir com formulário real depois)
-  async function salvarNota() {
-    await addDoc(collection(db, "Expresso_IboVasco"), {
-      jogador: "Payet",
-      nota: 8.5,
-      partida: "Vasco x Flamengo",
-      data: new Date().toISOString().slice(0, 10),
-      usuario: "anderson_diniz",
-      rodada: 5,
-      posicao: "meia",
-      publico: false
-    });
 
-    alert("Dados salvos no Firestore!");
-  }
-
-  // Teste automático: salva 1 jogador ao carregar a página
-  salvarNota();
 </script>
 
 
