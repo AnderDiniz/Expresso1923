@@ -247,6 +247,7 @@
   <button id="clearFiltro">Limpar seleção</button>
   <div id="multiFiltroWrapper" class="multi-filtro-wrapper">
     <div id="multiFiltro" class="multi-filtro"></div>
+    <button onclick="salvarAvaliacao()">Salvar</button>
   </div>
 </aside>
 
@@ -591,6 +592,50 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarNotas();
 });
 
+
+
+
+  
+import { addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// Função para salvar avaliação
+async function salvarAvaliacao() {
+  const jogador = document.getElementById("jogadorInput")?.value || "";
+  const posicao = document.getElementById("posicaoInput")?.value || "";
+  const partida = document.getElementById("filtroPartida")?.value || "";
+  const rodada = parseInt(document.getElementById("filtroRodada")?.value) || 0;
+  const nota = parseFloat(document.getElementById("filtroNota")?.value) || 0;
+  const data = new Date().toISOString().slice(0, 10);
+  const usuario = "anderson_diniz"; // fixo por enquanto
+  const publico = false; // você pode colocar checkbox se quiser mais tarde
+
+  if (!jogador || !posicao || !partida || isNaN(rodada) || isNaN(nota)) {
+    alert("Por favor, preencha todos os campos.");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "Expresso_IboVasco"), {
+      jogador,
+      posicao,
+      partida,
+      rodada,
+      nota,
+      data,
+      usuario,
+      publico
+    });
+    alert("Dados salvos com sucesso!");
+  } catch (error) {
+    console.error("Erro ao salvar no Firestore:", error);
+    alert("Erro ao salvar dados.");
+  }
+}
+
+
+
+
+  
 </script>
 
 
