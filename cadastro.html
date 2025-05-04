@@ -139,29 +139,36 @@
       }
     });
 
-    // Cadastro Partida (com checagem de duplicata)
-    document.getElementById("formPartida").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nome = document.getElementById("nomePartida").value.trim().toLowerCase();
-      const rodada = parseInt(document.getElementById("numeroRodada").value);
-      const data = new Date().toISOString();
+   
+// Cadastro Partida (com checagem de duplicata)
+document.getElementById("formPartida").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nome = document.getElementById("nomePartida").value.trim().toLowerCase();
+  const rodada = parseInt(document.getElementById("numeroRodada").value);
+  const data = new Date().toISOString();
 
-      try {
-        const q = query(collection(db, "Partidas_IboVasco"), where("nome", "==", nome));
-        const snapshot = await getDocs(q);
+  try {
+    const q = query(
+      collection(db, "Partidas_IboVasco"),
+      where("nome", "==", nome),
+      where("rodada", "==", rodada)
+    );
 
-        if (!snapshot.empty) {
-          alert("Essa partida já foi cadastrada.");
-          return;
-        }
+    const snapshot = await getDocs(q);
 
-        await addDoc(collection(db, "Partidas_IboVasco"), { nome, rodada, data });
-        alert("Partida cadastrada com sucesso!");
-        e.target.reset();
-      } catch (err) {
-        alert("Erro ao salvar partida: " + err.message);
-      }
-    });
+    if (!snapshot.empty) {
+      alert(`Já existe uma partida cadastrada com o nome "${nome}" na rodada ${rodada}.`);
+      return;
+    }
+
+    await addDoc(collection(db, "Partidas_IboVasco"), { nome, rodada, data });
+    alert("Partida cadastrada com sucesso!");
+    e.target.reset();
+  } catch (err) {
+    alert("Erro ao salvar partida: " + err.message);
+  }
+});
+
   </script>
 </body>
 </html>
