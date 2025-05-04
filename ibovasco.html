@@ -241,14 +241,6 @@
 <body>
   <h1 style="text-align:center">IboVasco 📈</h1>
   <div class="layout">
-    <aside id="sidebar">
-      <h3>Filtros</h3>
-      <button id="toggleFiltro">Selecionar jogadores</button>
-      <button id="clearFiltro">Limpar seleção</button>
-      <div id="multiFiltroWrapper" class="multi-filtro-wrapper">
-        <div id="multiFiltro" class="multi-filtro"></div>
-      </div>
-    </aside>
     <main id="mainContent">
 
 
@@ -504,17 +496,14 @@ document.addEventListener('mouseup', () => {
 </script>
 
 
-
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
   import {
     getFirestore,
     collection,
-    getDocs,
-    addDoc
+    getDocs
   } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-  // 🔐 Configuração do Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
     authDomain: "expresso1923-f760c.firebaseapp.com",
@@ -528,131 +517,89 @@ document.addEventListener('mouseup', () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // ✅ Função para carregar jogadores e atualizar automaticamente a posição
-  async function carregarJogadores() {
-    const jogadorSelect = document.getElementById("jogadorInput");
-    const posicaoSelect = document.getElementById("posicaoInput");
+  // Jogadores e posições
+  async function carregarJogadoresTopo() {
+    const jogadorSelect = document.getElementById("filtroJogador");
+    const posicaoSelect = document.getElementById("filtroPosicao");
 
-    jogadorSelect.innerHTML = '<option value="">Selecione um jogador</option>';
-    posicaoSelect.innerHTML = '<option value="">Selecione</option>';
+    const posicoesSet = new Set();
 
     try {
       const snapshot = await getDocs(collection(db, "Jogadores_IboVasco"));
-      const jogadores = [];
-
       snapshot.forEach(doc => {
         const dados = doc.data();
-        if (dados.nome && dados.posicao) {
-          jogadores.push({ nome: dados.nome, posicao: dados.posicao });
+        if (dados.nome) {
+          const opt = document.createElement("option");
+          opt.value = dados.nome;
+          opt.textContent = dados.nome;
+          jogadorSelect.appendChild(opt);
+        }
+        if (dados.posicao) {
+          posicoesSet.add(dados.posicao);
         }
       });
 
-      jogadores.forEach(j => {
-        const option = document.createElement("option");
-        option.value = j.nome;
-        option.textContent = j.nome;
-        option.dataset.posicao = j.posicao;
-        jogadorSelect.appendChild(option);
-      });
-
-      jogadorSelect.addEventListener("change", () => {
-        const selected = jogadorSelect.selectedOptions[0];
-        const posicao = selected?.dataset?.posicao;
-        if (posicao) {
-          posicaoSelect.innerHTML = `<option value="${posicao}">${posicao}</option>`;
-        } else {
-          posicaoSelect.innerHTML = '<option value="">Selecione</option>';
-        }
+      [...posicoesSet].sort().forEach(pos => {
+        const opt = document.createElement("option");
+        opt.value = pos;
+        opt.textContent = pos.charAt(0).toUpperCase() + pos.slice(1);
+        posicaoSelect.appendChild(opt);
       });
 
     } catch (error) {
       console.error("Erro ao carregar jogadores:", error);
-      jogadorSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-      posicaoSelect.innerHTML = '<option value="">Erro</option>';
     }
   }
 
-  // ✅ Função para carregar partidas e preencher automaticamente a rodada
-  async function carregarPartidasERodadas() {
-    const partidaSelect = document.getElementById("partidaInput");
-    const rodadaSelect = document.getElementById("rodadaInput");
+  // Partidas e rodadas
+  async function carregarPartidasTopo() {
+    const partidaSelect = document.getElementById("filtroPartida");
+    const rodadaSelect = document.getElementById("filtroRodada");
 
-    partidaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
-    rodadaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
+    const rodadasSet = new Set();
 
     try {
       const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
-      const partidas = [];
-
       snapshot.forEach(doc => {
         const dados = doc.data();
         if (dados.nome && dados.rodada !== undefined) {
-          partidas.push({ nome: dados.nome, rodada: dados.rodada });
+          const opt = document.createElement("option");
+          opt.value = dados.nome;
+          opt.textContent = `${dados.nome} (Rodada ${dados.rodada})`;
+          partidaSelect.appendChild(opt);
+          rodadasSet.add(dados.rodada);
         }
       });
 
-      partidas.sort((a, b) => a.rodada - b.rodada);
-
-      partidas.forEach(p => {
-        const option = document.createElement("option");
-        option.value = p.nome;
-        option.textContent = `${p.nome} (Rodada ${p.rodada})`;
-        option.dataset.rodada = p.rodada;
-        partidaSelect.appendChild(option);
-      });
-
-      partidaSelect.addEventListener("change", () => {
-        const selected = partidaSelect.selectedOptions[0];
-        const rodada = selected?.dataset?.rodada;
-        if (rodada) {
-          rodadaSelect.innerHTML = `<option value="${rodada}">${rodada}</option>`;
-        } else {
-          rodadaSelect.innerHTML = '<option value="">Selecione uma partida</option>';
-        }
+      [...rodadasSet].sort((a, b) => a - b).forEach(rodada => {
+        const opt = document.createElement("option");
+        opt.value = rodada;
+        opt.textContent = rodada;
+        rodadaSelect.appendChild(opt);
       });
 
     } catch (error) {
       console.error("Erro ao carregar partidas:", error);
-      partidaSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-      rodadaSelect.innerHTML = '<option value="">Erro</option>';
     }
   }
 
-  // ✅ Executa as funções ao carregar
-  carregarJogadores();
-  carregarPartidasERodadas();
-
-  // ✅ Submissão do formulário
-  document.getElementById("formAvaliacao").addEventListener("submit", async function salvarNota(event) {
-    event.preventDefault();
-
-    const jogador = document.getElementById("jogadorInput").value;
-    const nota = parseFloat(document.getElementById("notaInput").value);
-    const partida = document.getElementById("partidaInput").value;
-    const rodada = parseInt(document.getElementById("rodadaInput").value);
-    const posicao = document.getElementById("posicaoInput").value;
-    const publico = document.getElementById("publicoInput").checked;
-    const usuario = "anderson_diniz";
-    const data = new Date().toISOString().slice(0, 10);
-
-    try {
-      await addDoc(collection(db, "Expresso_IboVasco"), {
-        jogador,
-        nota,
-        partida,
-        rodada,
-        posicao,
-        publico,
-        usuario,
-        data
-      });
-      alert("Dados salvos com sucesso!");
-      document.getElementById("formAvaliacao").reset();
-    } catch (error) {
-      alert("Erro ao salvar: " + error.message);
+  // Notas possíveis (ex: de 0 a 10)
+  function carregarNotas() {
+    const notaSelect = document.getElementById("filtroNota");
+    for (let i = 0; i <= 10; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = i;
+      notaSelect.appendChild(opt);
     }
-  });
+  }
+
+  // Executar todos os carregamentos
+  carregarJogadoresTopo();
+  carregarPartidasTopo();
+  carregarNotas();
 </script>
+
 
 
 
