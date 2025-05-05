@@ -496,24 +496,25 @@ document.addEventListener('mouseup', () => {
 
 // Firebase + filtros automáticos: Jogador/Posição e Partida/Rodada
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    addDoc
+  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
-  authDomain: "expresso1923-f760c.firebaseapp.com",
-  projectId: "expresso1923-f760c",
-  storageBucket: "expresso1923-f760c.firebasestorage.app",
-  messagingSenderId: "559120791902",
-  appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
-  measurementId: "G-61BS7RLBB6"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyA6jbe8NVhMeP_4gSnpnA_ntjpS3tvrf-w",
+    authDomain: "expresso1923-f760c.firebaseapp.com",
+    projectId: "expresso1923-f760c",
+    storageBucket: "expresso1923-f760c.appspot.com",
+    messagingSenderId: "559120791902",
+    appId: "1:559120791902:web:0bd0d7797ad3429023b7cf",
+    measurementId: "G-61BS7RLBB6"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
 // Carrega jogadores e vincula posição automaticamente
 async function carregarJogadoresComPosicao() {
@@ -623,38 +624,45 @@ document.addEventListener("DOMContentLoaded", () => {
 import { addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
 // Função para salvar avaliação
-async function salvarAvaliacao() {
-  const jogador = document.getElementById("filtroJogador")?.value || "";
-  const posicao = document.getElementById("filtroPosicao")?.value || "";
-  const partida = document.getElementById("filtroPartida")?.value || "";
-  const rodada = parseInt(document.getElementById("filtroRodada")?.value) || 0;
-  const nota = parseFloat(document.getElementById("filtroNota")?.value) || 0;
-  const data = new Date().toISOString().slice(0, 10);
-  const usuario = "anderson_diniz"; // fixo por enquanto
-  const publico = false; // você pode colocar checkbox se quiser mais tarde
+window.salvarAvaliacao = async function () {
+    const jogador = document.getElementById("filtroJogador")?.value || "";
+    const posicao = document.getElementById("filtroPosicao")?.value || "";
+    const partida = document.getElementById("filtroPartida")?.value || "";
+    const rodada = parseInt(document.getElementById("filtroRodada")?.value) || 0;
+    const nota = parseFloat(document.getElementById("filtroNota")?.value) || 0;
+    const data = new Date().toISOString().slice(0, 10);
+    const usuario = "anderson_diniz";
+    const publico = false;
 
-  if (!jogador || !posicao || !partida || isNaN(rodada) || isNaN(nota)) {
-    alert("Por favor, preencha todos os campos.");
-    return;
-  }
+    if (!jogador || !posicao || !partida || isNaN(rodada) || isNaN(nota)) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
 
-  try {
-    await addDoc(collection(db, "Expresso_IboVasco"), {
-      jogador,
-      posicao,
-      partida,
-      rodada,
-      nota,
-      data,
-      usuario,
-      publico
-    });
-    alert("Dados salvos com sucesso!");
-  } catch (error) {
-    console.error("Erro ao salvar no Firestore:", error);
-    alert("Erro ao salvar dados.");
-  }
-}
+    try {
+      await addDoc(collection(db, "Expresso_IboVasco"), {
+        jogador,
+        posicao,
+        partida,
+        rodada,
+        nota,
+        data,
+        usuario,
+        publico
+      });
+      alert("Dados salvos com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar no Firestore:", error);
+      alert("Erro ao salvar dados.");
+    }
+  };
+
+  // Carregamento inicial dos filtros
+  document.addEventListener("DOMContentLoaded", () => {
+    carregarJogadoresComPosicao();
+    carregarPartidasComRodadas();
+    carregarNotas();
+  });
 
 
 
