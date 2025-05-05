@@ -624,8 +624,8 @@ import { addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firest
 
 // Função para salvar avaliação
 async function salvarAvaliacao() {
-  const jogador = document.getElementById("jogadorInput")?.value || "";
-  const posicao = document.getElementById("posicaoInput")?.value || "";
+  const jogador = document.getElementById("filtroJogador")?.value || "";
+  const posicao = document.getElementById("filtroPosicao")?.value || "";
   const partida = document.getElementById("filtroPartida")?.value || "";
   const rodada = parseInt(document.getElementById("filtroRodada")?.value) || 0;
   const nota = parseFloat(document.getElementById("filtroNota")?.value) || 0;
