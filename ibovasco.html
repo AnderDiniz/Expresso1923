@@ -535,13 +535,19 @@ async function carregarJogadoresComPosicao() {
       }
     });
 
-    jogadores.forEach(j => {
-      const option = document.createElement("option");
-      option.value = j.nome;
-      option.textContent = j.nome;
-      option.dataset.posicao = j.posicao;
-      jogadorSelect.appendChild(option);
-    });
+ const nomesAdicionados = new Set();
+
+jogadores.forEach(j => {
+  if (!nomesAdicionados.has(j.nome)) {
+    const option = document.createElement("option");
+    option.value = j.nome;
+    option.textContent = j.nome;
+    option.dataset.posicao = j.posicao;
+    jogadorSelect.appendChild(option);
+    nomesAdicionados.add(j.nome);
+  }
+});
+
 
     jogadorSelect.addEventListener("change", () => {
       const selected = jogadorSelect.selectedOptions[0];
@@ -570,18 +576,24 @@ async function carregarPartidasComRodadas() {
 
   const partidaRodadaMap = {}; // { "Santos": 1 }
 
-  try {
-    const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
-    snapshot.forEach(doc => {
-      const dados = doc.data();
-      if (dados.nome && dados.rodada !== undefined) {
-        const opt = document.createElement("option");
-        opt.value = dados.nome;
-        opt.textContent = `${dados.nome} (Rodada ${dados.rodada})`;
-        partidaSelect.appendChild(opt);
-        partidaRodadaMap[dados.nome] = dados.rodada;
-      }
-    });
+
+  
+try {
+  const snapshot = await getDocs(collection(db, "Partidas_IboVasco"));
+  const nomesAdicionados = new Set();
+
+  snapshot.forEach(doc => {
+    const dados = doc.data();
+    if (dados.nome && dados.rodada !== undefined && !nomesAdicionados.has(dados.nome)) {
+      const opt = document.createElement("option");
+      opt.value = dados.nome;
+      opt.textContent = `${dados.nome} (Rodada ${dados.rodada})`;
+      partidaSelect.appendChild(opt);
+      partidaRodadaMap[dados.nome] = dados.rodada;
+      nomesAdicionados.add(dados.nome);
+    }
+  });
+
 
     partidaSelect.addEventListener("change", () => {
       const nomeSelecionado = partidaSelect.value;
